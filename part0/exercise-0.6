@@ -1,0 +1,9 @@
+sequenceDiagram
+    participant browser
+    participant server
+
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/spa
+    activate server
+    server-->>browser: status 201 - Created
+    server-->>browser: JSON - {"message":"note created}
+    deactivate server
