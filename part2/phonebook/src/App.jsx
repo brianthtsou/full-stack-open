@@ -3,6 +3,8 @@ import personsService from "./services/persons";
 import Person from "./components/Person";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
+import Notification from "./components/Notification";
+import PersonList from "./components/PersonList";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -10,24 +12,14 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [parameter, setParameter] = useState("");
   const [showAll, setShowAll] = useState(true);
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     personsService.getAll().then((response) => {
       setPersons(response.data);
     });
-  }, []);
-
-  // refreshes the page
-  const refresh = () => {
-    personsService
-      .getAll()
-      .then((response) => {
-        setPersons(response.data);
-      })
-      .catch((error) => {
-        console.log("Failed to retrieve data!");
-      });
-  };
+  }, [persons]);
 
   // handlers
   const handleNameChange = (event) => {
@@ -50,12 +42,12 @@ const App = () => {
     event.preventDefault();
     const personObject = {
       name: newName,
-      id: String(persons.length + 1),
       number: newNumber,
     };
 
     const a = persons.filter((p) => newName === p.name); // returns an array
 
+    // Case: identical name found
     if (a.length > 0) {
       if (
         !confirm(
@@ -67,23 +59,42 @@ const App = () => {
       const newP = { ...a[0], number: newNumber };
       personsService
         .update(newP.id, newP)
-        .then((response) => {
+        .then(() => {
           setNewName("");
           setNewNumber("");
+          setSuccessMessage(`${newP.name} number was successfully changed!`);
         })
-        .then(() => {
-          refresh();
+        .catch((error) => {
+          setError(true);
+          setSuccessMessage(
+            `Information of ${newP.name} has already been removed from server`
+          );
+        })
+        .finally(() => {
+          setTimeout(() => {
+            setSuccessMessage(null);
+            setError(false);
+          }, 5000);
         });
 
       return;
     }
+    // else if no identical name, create new person in phonebook
+    else {
+      personsService.create(personObject).then((response) => {
+        // retrieve new person data (with id included) from backend
+        const newPerson = response.data;
 
-    personsService.create(personObject).then((response) => {
-      setPersons(persons.concat(personObject));
-      console.log(response);
-      setNewName("");
-      setNewNumber("");
-    });
+        // concat new person with id to persons state
+        setPersons(persons.concat(newPerson));
+        setSuccessMessage(`${newPerson.name} was added to the phonebook!`);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
+        setNewName("");
+        setNewNumber("");
+      });
+    }
   };
 
   // variable to determine which numbers to display based on filter
@@ -99,19 +110,15 @@ const App = () => {
     if (!confirm(`Delete ${name}?`)) {
       return;
     }
-    personsService
-      .deleteMethod(id)
-      .then(() => {
-        refresh();
-      })
-      .catch((error) => {
-        console.log(`Failed to retrieve person id: ${id}`);
-      });
+    personsService.deleteMethod(id).catch((error) => {
+      console.log(`Failed to retrieve person id: ${id}`);
+    });
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={successMessage} error={error} />
       <Filter value={parameter} method={handleSearch} />
       <h2>add a new</h2>
       <PersonForm
@@ -122,15 +129,7 @@ const App = () => {
         numOnChangeHandler={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <div>
-        {numbersToShow.map((person) => (
-          <Person
-            key={person.id}
-            person={person}
-            deleteMethod={(e) => deletePerson(person.id, person.name, e)}
-          />
-        ))}
-      </div>
+      <PersonList numbersToShow={numbersToShow} deletePerson={deletePerson} />
     </div>
   );
 };
