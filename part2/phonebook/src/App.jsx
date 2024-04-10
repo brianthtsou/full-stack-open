@@ -129,7 +129,9 @@ const App = () => {
         numOnChangeHandler={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <PersonList numbersToShow={numbersToShow} deletePerson={deletePerson} />
+      {persons.length > 0 && (
+        <PersonList numbersToShow={numbersToShow} deletePerson={deletePerson} />
+      )}
     </div>
   );
 };
