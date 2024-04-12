@@ -14,12 +14,14 @@ const App = () => {
   const [showAll, setShowAll] = useState(true);
   const [successMessage, setSuccessMessage] = useState(null);
   const [error, setError] = useState(false);
+  const [fetchAgain, setFetchAgain] = useState(false);
 
   useEffect(() => {
     personsService.getAll().then((response) => {
       setPersons(response.data);
+      setFetchAgain(false);
     });
-  }, [persons]);
+  }, [fetchAgain]);
 
   // handlers
   const handleNameChange = (event) => {
@@ -76,7 +78,7 @@ const App = () => {
             setError(false);
           }, 5000);
         });
-
+      setFetchAgain(true);
       return;
     }
     // else if no identical name, create new person in phonebook
@@ -84,9 +86,8 @@ const App = () => {
       personsService.create(personObject).then((response) => {
         // retrieve new person data (with id included) from backend
         const newPerson = response.data;
-
         // concat new person with id to persons state
-        setPersons(persons.concat(newPerson));
+        setPersons((prevPersons) => [...prevPersons, newPerson]);
         setSuccessMessage(`${newPerson.name} was added to the phonebook!`);
         setTimeout(() => {
           setSuccessMessage(null);
@@ -94,6 +95,7 @@ const App = () => {
         setNewName("");
         setNewNumber("");
       });
+      setFetchAgain(true);
     }
   };
 
@@ -113,6 +115,7 @@ const App = () => {
     personsService.deleteMethod(id).catch((error) => {
       console.log(`Failed to retrieve person id: ${id}`);
     });
+    setFetchAgain(true);
   };
 
   return (
