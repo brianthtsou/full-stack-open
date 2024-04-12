@@ -85,10 +85,11 @@ const App = () => {
     else {
       personsService.create(personObject).then((response) => {
         // retrieve new person data (with id included) from backend
-        const newPerson = response.data;
+        const allPeople = response.data; // backend returns the entire list of people
+        console.log(allPeople);
         // concat new person with id to persons state
-        setPersons((prevPersons) => [...prevPersons, newPerson]);
-        setSuccessMessage(`${newPerson.name} was added to the phonebook!`);
+        setPersons(allPeople);
+        setSuccessMessage(`${personObject.name} was added to the phonebook!`);
         setTimeout(() => {
           setSuccessMessage(null);
         }, 5000);
@@ -98,13 +99,6 @@ const App = () => {
       setFetchAgain(true);
     }
   };
-
-  // variable to determine which numbers to display based on filter
-  const numbersToShow = showAll
-    ? persons
-    : persons.filter((p) =>
-        p.name.toLowerCase().includes(parameter.toLowerCase())
-      );
 
   // deletes person from phonebook
   const deletePerson = (id, name, event) => {
@@ -117,6 +111,13 @@ const App = () => {
     });
     setFetchAgain(true);
   };
+
+  // variable to determine which numbers to display based on filter
+  const numbersToShow = showAll
+    ? persons
+    : persons.filter((p) =>
+        p.name.toLowerCase().includes(parameter.toLowerCase())
+      );
 
   return (
     <div>
