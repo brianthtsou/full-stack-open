@@ -83,19 +83,29 @@ const App = () => {
     }
     // else if no identical name, create new person in phonebook
     else {
-      personsService.create(personObject).then((response) => {
-        // retrieve new person data (with id included) from backend
-        const allPeople = response.data; // backend returns the entire list of people
-        console.log(allPeople);
-        // concat new person with id to persons state
-        setPersons(allPeople);
-        setSuccessMessage(`${personObject.name} was added to the phonebook!`);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
-        setNewName("");
-        setNewNumber("");
-      });
+      personsService
+        .create(personObject)
+        .then((response) => {
+          // retrieve new person data (with id included) from backend
+          const allPeople = response.data; // backend returns the entire list of people
+          console.log(allPeople);
+          // concat new person with id to persons state
+          setPersons(allPeople);
+          setSuccessMessage(`${personObject.name} was added to the phonebook!`);
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 5000);
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          setSuccessMessage(error.response.data.error);
+          setError(true);
+          setTimeout(() => {
+            setSuccessMessage(null);
+            setError(false);
+          }, 5000);
+        });
       setFetchAgain(true);
     }
   };
