@@ -2,10 +2,11 @@
   "name": "part4",
   "version": "1.0.0",
   "description": "",
-  "main": "cross-env NODE_ENV=production node index.js",
-  "dev": "cross-env NODE_ENV=development nodemon index.js",
+  "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test node --test"
+    "test": "cross-env NODE_ENV=test node --test",
+    "main": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js"
   },
   "author": "",
   "license": "ISC",
