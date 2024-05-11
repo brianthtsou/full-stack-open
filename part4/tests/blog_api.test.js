@@ -20,7 +20,17 @@ const initialBlogs = [
     url: "Test Url2",
     likes: 2,
   },
+  {
+    title: "Test Blog Missing Likes",
+    author: "Tester3",
+    url: "Test Url3",
+  },
 ];
+
+test.only("simple test", async () => {
+  console.log("This is a test");
+  assert.strictEqual(1, 1);
+});
 
 describe("basic functions and formatting", () => {
   beforeEach(async () => {
@@ -48,12 +58,29 @@ describe("basic functions and formatting", () => {
 
   test("post request successfully creates new blog post", async () => {
     const postResponse = await api
-      .post("/api/blogs", initialBlogs[1])
+      .post("/api/blogs")
+      .send(initialBlogs[1])
       .expect(201);
 
     const getResponse = await api.get("/api/blogs").expect(200);
     const blogs = getResponse.body;
     assert(blogs.length === 2);
+  });
+
+  test("post request of blog that is missing 'likes' defaults to 0", async () => {
+    console.log(initialBlogs[2]);
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(initialBlogs[2])
+      .expect(201);
+
+    const getResponse = await api.get("/api/blogs").expect(200);
+    const blogs = getResponse.body;
+    console.log(blogs);
+    assert.strictEqual(
+      blogs.find((blog) => blog.author === "Tester3").likes,
+      0
+    );
   });
 });
 
