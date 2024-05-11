@@ -9,21 +9,35 @@ const api = supertest(app);
 
 const initialBlogs = [
   {
-    title: "Test Blog",
-    author: "Tester",
-    url: "Test Url",
+    title: "Test Blog0",
+    author: "Tester0",
+    url: "Test Url0",
+    likes: 0,
+  },
+  {
+    title: "Test Blog1",
+    author: "Tester1",
+    url: "Test Url1",
     likes: 1,
   },
   {
-    title: "Test Blog2",
+    title: "Test Blog Missing Likes",
     author: "Tester2",
     url: "Test Url2",
-    likes: 2,
   },
   {
-    title: "Test Blog Missing Likes",
-    author: "Tester3",
-    url: "Test Url3",
+    author: "Tester3 (missing title)",
+    url: "Test Url 3",
+    likes: 3,
+  },
+  {
+    title: "Test Blog4 (missing url)",
+    author: "Tester4",
+    likes: 4,
+  },
+  {
+    author: "Tester5 (missing url and title)",
+    likes: 5,
   },
 ];
 
@@ -32,7 +46,7 @@ test.only("simple test", async () => {
   assert.strictEqual(1, 1);
 });
 
-describe("basic functions and formatting", () => {
+describe.only("basic functions and formatting", () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
     let blogObject = new Blog(initialBlogs[0]);
@@ -68,7 +82,6 @@ describe("basic functions and formatting", () => {
   });
 
   test("post request of blog that is missing 'likes' defaults to 0", async () => {
-    console.log(initialBlogs[2]);
     const postResponse = await api
       .post("/api/blogs")
       .send(initialBlogs[2])
@@ -76,11 +89,19 @@ describe("basic functions and formatting", () => {
 
     const getResponse = await api.get("/api/blogs").expect(200);
     const blogs = getResponse.body;
-    console.log(blogs);
+
     assert.strictEqual(
-      blogs.find((blog) => blog.author === "Tester3").likes,
+      blogs.find((blog) => blog.author === "Tester2").likes,
       0
     );
+  });
+
+  test.only("post request of blog that is missing 'title'/'url' has a 400 response", async () => {
+    await api.post("/api/blogs").send(initialBlogs[3]).expect(400);
+
+    await api.post("/api/blogs").send(initialBlogs[4]).expect(400);
+
+    await api.post("/api/blogs").send(initialBlogs[5]).expect(400);
   });
 });
 
