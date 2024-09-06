@@ -7,19 +7,32 @@ blogRouter.get("/", (request, response) => {
   });
 });
 
-blogRouter.post("/", (request, response) => {
+blogRouter.post("/", async (request, response) => {
   const blog = new Blog(request.body);
 
   if (!blog.title || !blog.url) {
     response
       .status(400)
-      .send({ message: "Missing title and/or url in request body." });
+      .json({ message: "Missing title and/or url in request body." });
     return;
   }
 
-  blog.save().then((result) => {
-    response.status(201).json(result);
-  });
+  const savedBlog = await blog.save();
+  return response.status(201).json(savedBlog);
+});
+
+blogRouter.delete("/:id", async (request, response) => {
+  try {
+    const result = await Blog.findByIdAndDelete(request.params.id);
+    if (!result) {
+      return response.status(404).json({ message: "No blog found." });
+    }
+    response.status(200).json({ message: "Blog deleted successfully." });
+  } catch (err) {
+    response
+      .status(500)
+      .json({ message: "An error occurred.", err: err.message });
+  }
 });
 
 module.exports = blogRouter;

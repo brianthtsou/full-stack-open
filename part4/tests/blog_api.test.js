@@ -46,6 +46,7 @@ test.only("simple test", async () => {
   assert.strictEqual(1, 1);
 });
 
+//basic functions and formatting
 describe.only("basic functions and formatting", () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
@@ -102,6 +103,32 @@ describe.only("basic functions and formatting", () => {
     await api.post("/api/blogs").send(initialBlogs[4]).expect(400);
 
     await api.post("/api/blogs").send(initialBlogs[5]).expect(400);
+  });
+});
+
+// testing delete functionality
+describe.only("testing delete functionality", () => {
+  test("adding blog then deleting the same blog", async () => {
+    // add a new blog
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(initialBlogs[1])
+      .expect(201);
+
+    const id = postResponse.body.id;
+
+    // assert that a new blog has been added
+    const getResponse = await api.get("/api/blogs").expect(200);
+    const blogs = getResponse.body;
+    console.log(blogs);
+    assert(blogs.length === 2);
+    assert(id);
+
+    // assert that the same blog we added has been deleted
+    const deleteResponse = await api.delete(`/api/blogs/${id}`).expect(200);
+    const updatedResponse = await api.get("/api/blogs").expect(200);
+    const updatedBlogs = updatedResponse.body;
+    assert(updatedBlogs.length === 1);
   });
 });
 
