@@ -132,6 +132,59 @@ describe.only("testing delete functionality", () => {
   });
 });
 
+// testing delete functionality
+describe.only("testing delete functionality", () => {
+  test("adding blog then deleting the same blog", async () => {
+    // add a new blog
+    const postResponse = await api
+      .post("/api/blogs")
+      .send(initialBlogs[1])
+      .expect(201);
+
+    const id = postResponse.body.id;
+
+    // assert that a new blog has been added
+    const getResponse = await api.get("/api/blogs").expect(200);
+    const blogs = getResponse.body;
+    console.log(blogs);
+    assert(blogs.length === 2);
+    assert(id);
+
+    // assert that the same blog we added has been deleted
+    const deleteResponse = await api.delete(`/api/blogs/${id}`).expect(200);
+    const updatedResponse = await api.get("/api/blogs").expect(200);
+    const updatedBlogs = updatedResponse.body;
+    assert(updatedBlogs.length === 1);
+  });
+});
+
+// testing update functionality
+describe.only("testing update functionality", () => {
+  test("adding a like to a blog", async () => {
+    // add a new blog
+    const preupdateResponse = await api.get("/api/blogs").expect(200);
+
+    const allBlogs = preupdateResponse.body;
+    console.log(allBlogs);
+    const blog = allBlogs[0];
+    console.log(blog);
+    const likeCount = blog.likes;
+    const id = blog.id;
+
+    // update blog
+    const updateResponse = await api
+      .put(`/api/blogs/${id}`)
+      .send(blog)
+      .expect(200);
+
+    // assert that the blog has been updated
+    const postupdateResponse = await api.get("/api/blogs").expect(200);
+    const updatedBlogs = postupdateResponse.body;
+    const updatedBlog = updatedBlogs[0];
+    assert(updatedBlog.likes === likeCount + 1);
+  });
+});
+
 after(async () => {
   await mongoose.connection.close();
 });

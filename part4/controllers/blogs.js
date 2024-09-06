@@ -27,9 +27,26 @@ blogRouter.delete("/:id", async (request, response) => {
     if (!result) {
       return response.status(404).json({ message: "No blog found." });
     }
-    response.status(200).json({ message: "Blog deleted successfully." });
+    return response.status(200).json({ message: "Blog deleted successfully." });
   } catch (err) {
-    response
+    return response
+      .status(500)
+      .json({ message: "An error occurred.", err: err.message });
+  }
+});
+
+blogRouter.put("/:id", async (request, response) => {
+  try {
+    const body = request.body;
+    const updatedBlog = { ...request.body, likes: request.body.likes + 1 };
+
+    const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog);
+    if (!result) {
+      return response.status(404).json({ message: "No blog found." });
+    }
+    return response.status(200).json({ message: "Blog updated successfully." });
+  } catch (err) {
+    return response
       .status(500)
       .json({ message: "An error occurred.", err: err.message });
   }
