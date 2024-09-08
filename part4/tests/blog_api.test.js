@@ -42,6 +42,12 @@ const initialBlogs = [
   },
 ];
 
+const initialUser = {
+  username: "initial",
+  name: "Initial User",
+  password: "password",
+};
+
 const testUsers = [
   {
     username: "testuser1",
@@ -207,6 +213,8 @@ describe.only("testing update functionality", () => {
 describe.only("testing users functionality", () => {
   beforeEach(async () => {
     await User.deleteMany({});
+    const initial = new User(initialUser);
+    await initial.save();
   });
 
   test("adding a new user", async () => {
@@ -219,7 +227,7 @@ describe.only("testing users functionality", () => {
 
     const allUsers = getResponse.body;
 
-    assert(allUsers.length === 1);
+    assert(allUsers.length === 2);
   });
 
   test("adding a user with invalid username & passwords", async () => {
@@ -242,7 +250,7 @@ describe.only("testing users functionality", () => {
 
     const allUsers = getResponse.body;
 
-    assert(allUsers.length === 0);
+    assert(allUsers.length === 1);
   });
 });
 
