@@ -4,6 +4,7 @@ const supertest = require("supertest");
 const assert = require("assert");
 const app = require("../app");
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 const api = supertest(app);
 
@@ -38,6 +39,24 @@ const initialBlogs = [
   {
     author: "Tester5 (missing url and title)",
     likes: 5,
+  },
+];
+
+const testUsers = [
+  {
+    username: "testuser1",
+    name: "Testuser Success",
+    password: "password",
+  },
+  {
+    username: "testuser2",
+    name: "Testuser Password Failure",
+    password: "12",
+  },
+  {
+    username: "t3",
+    name: "Testuser Username Failure",
+    password: "password",
   },
 ];
 
@@ -120,7 +139,6 @@ describe.only("testing delete functionality", () => {
     // assert that a new blog has been added
     const getResponse = await api.get("/api/blogs").expect(200);
     const blogs = getResponse.body;
-    console.log(blogs);
     assert(blogs.length === 2);
     assert(id);
 
@@ -146,7 +164,7 @@ describe.only("testing delete functionality", () => {
     // assert that a new blog has been added
     const getResponse = await api.get("/api/blogs").expect(200);
     const blogs = getResponse.body;
-    console.log(blogs);
+
     assert(blogs.length === 2);
     assert(id);
 
@@ -165,9 +183,9 @@ describe.only("testing update functionality", () => {
     const preupdateResponse = await api.get("/api/blogs").expect(200);
 
     const allBlogs = preupdateResponse.body;
-    console.log(allBlogs);
+
     const blog = allBlogs[0];
-    console.log(blog);
+
     const likeCount = blog.likes;
     const id = blog.id;
 
@@ -182,6 +200,49 @@ describe.only("testing update functionality", () => {
     const updatedBlogs = postupdateResponse.body;
     const updatedBlog = updatedBlogs[0];
     assert(updatedBlog.likes === likeCount + 1);
+  });
+});
+
+// testing users functionality
+describe.only("testing users functionality", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
+
+  test("adding a new user", async () => {
+    // add a new blog
+    const postResponse = await api
+      .post("/api/users")
+      .send(testUsers[0])
+      .expect(201);
+    const getResponse = await api.get("/api/users").expect(200);
+
+    const allUsers = getResponse.body;
+
+    assert(allUsers.length === 1);
+  });
+
+  test("adding a user with invalid username & passwords", async () => {
+    // add a new blog
+    const postResponse = await api
+      .post("/api/users")
+      .send(testUsers[1])
+      .expect(400);
+
+    assert(postResponse.body.message.includes("invalid password"));
+
+    const postResponse2 = await api
+      .post("/api/users")
+      .send(testUsers[2])
+      .expect(400);
+
+    assert(postResponse2.body.message.includes("Validation failed"));
+
+    const getResponse = await api.get("/api/users").expect(200);
+
+    const allUsers = getResponse.body;
+
+    assert(allUsers.length === 0);
   });
 });
 
