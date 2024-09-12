@@ -13,6 +13,7 @@ blogRouter.get("/", async (request, response) => {
 blogRouter.post("/", async (request, response) => {
   const blog = new Blog(request.body);
   const user = await User.findOne();
+  const token = Login;
 
   blog.user = user._id;
 
