@@ -28,9 +28,12 @@ loginRouter.post("/", async (request, response) => {
 
     const token = jwt.sign(userForToken, process.env.SECRET);
 
-    return response
-      .status(200)
-      .json({ token, username: user.username, name: user.name });
+    return response.status(200).json({
+      token: `Bearer ${token}`,
+      username: user.username,
+      name: user.name,
+      user_id: user._id,
+    });
   } catch (err) {
     return response.status(400).json({
       err: err.message,

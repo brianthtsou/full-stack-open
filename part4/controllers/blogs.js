@@ -1,6 +1,15 @@
 const blogRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
+
+const getTokenFrom = (request) => {
+  const authorization = request.get("authorization");
+  if (authorization && authorization.startsWith("Bearer ")) {
+    return authorization.replace("Bearer ", "");
+  }
+  return null;
+};
 
 blogRouter.get("/", async (request, response) => {
   // Blog.find({}).then((blogs) => {
@@ -11,11 +20,8 @@ blogRouter.get("/", async (request, response) => {
 });
 
 blogRouter.post("/", async (request, response) => {
+  // create a new blog
   const blog = new Blog(request.body);
-  const user = await User.findOne();
-  const token = Login;
-
-  blog.user = user._id;
 
   if (!blog.title || !blog.url) {
     response
@@ -24,11 +30,48 @@ blogRouter.post("/", async (request, response) => {
     return;
   }
 
-  const savedBlog = await blog.save();
-  user.blogs = user.blogs.concat(savedBlog._id);
+  // check to see if token exists
+  const token = getTokenFrom(request);
+  if (!token) {
+    return response.status(401).json({ message: "Token missing" });
+  }
 
-  await user.save();
-  return response.status(201).json(savedBlog);
+  // verify token
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.SECRET);
+  } catch (err) {
+    return response.status(401).json({
+      err: err.message,
+      message: "Invalid or missing token verification",
+    });
+  }
+
+  if (!decodedToken.user_id) {
+    return response.status(401).json({ err: "token invalid" });
+  }
+  try {
+    // fetch user by id from decoded token
+    const user = await User.findById(decodedToken.user_id);
+    if (!user) {
+      return response.status(404).json({ message: "user not found" });
+    }
+
+    // indicate blog as being owned by user
+    blog.user = user._id;
+
+    // save blog, append blog to user's list of blogs
+    const savedBlog = await blog.save();
+    user.blogs = user.blogs.concat(savedBlog._id);
+
+    await user.save();
+    return response.status(201).json(savedBlog);
+  } catch (err) {
+    // database errors
+    return response
+      .status(500)
+      .json({ message: "Internal server error", err: err.message });
+  }
 });
 
 blogRouter.delete("/:id", async (request, response) => {
