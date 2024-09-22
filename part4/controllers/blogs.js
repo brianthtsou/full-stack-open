@@ -3,18 +3,15 @@ const Blog = require("../models/blog");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-const getTokenFrom = (request) => {
-  const authorization = request.get("authorization");
-  if (authorization && authorization.startsWith("Bearer ")) {
-    return authorization.replace("Bearer ", "");
-  }
-  return null;
-};
+// const getTokenFrom = (request) => {
+//   const authorization = request.get("authorization");
+//   if (authorization && authorization.startsWith("Bearer ")) {
+//     return authorization.replace("Bearer ", "");
+//   }
+//   return null;
+// };
 
 blogRouter.get("/", async (request, response) => {
-  // Blog.find({}).then((blogs) => {
-  //   response.json(blogs);
-  // });
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   return response.status(200).json(blogs);
 });
@@ -31,15 +28,14 @@ blogRouter.post("/", async (request, response) => {
   }
 
   // check to see if token exists
-  const token = getTokenFrom(request);
-  if (!token) {
+  if (!request.token) {
     return response.status(401).json({ message: "Token missing" });
   }
 
   // verify token
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, process.env.SECRET);
+    decodedToken = jwt.verify(request.token, process.env.SECRET);
   } catch (err) {
     return response.status(401).json({
       err: err.message,
