@@ -71,11 +71,41 @@ blogRouter.post("/", async (request, response) => {
 });
 
 blogRouter.delete("/:id", async (request, response) => {
+  // check to see if token exists
+  if (!request.token) {
+    return response.status(401).json({ message: "Token missing" });
+  }
+
+  // verify token
+  let decodedToken;
   try {
-    const result = await Blog.findByIdAndDelete(request.params.id);
+    decodedToken = jwt.verify(request.token, process.env.SECRET);
+  } catch (err) {
+    return response.status(401).json({
+      err: err.message,
+      message: "Invalid or missing token verification",
+    });
+  }
+
+  if (!decodedToken.user_id) {
+    return response.status(401).json({ err: "token invalid" });
+  }
+
+  try {
+    const result = await Blog.findById(request.params.id);
     if (!result) {
       return response.status(404).json({ message: "No blog found." });
     }
+    if (result.user.equals(decodedToken.user_id)) {
+      return (
+        response.status(401),
+        json({
+          err: err.message,
+          message: "Invalid user logged in.",
+        })
+      );
+    }
+    const deletedResult = await Blog.findByIdAndDelete(request.params.id);
     return response.status(200).json({ message: "Blog deleted successfully." });
   } catch (err) {
     return response
