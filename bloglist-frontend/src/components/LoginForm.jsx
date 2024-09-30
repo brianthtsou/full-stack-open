@@ -8,11 +8,14 @@ const LoginForm = ({ updateUser }) => {
   const handleLogin = async (event) => {
     event.preventDefault();
     console.log("logging in with", username, password);
+    // get login token & userdata
     const result = await loginService.initiateLogin(username, password);
     console.log(result);
+    // if token & username valid, changed loggedin user
     if (result.token && result.username) {
       updateUser(result.username);
     }
+    window.localStorage.setItem("loggedBlogappUser", JSON.stringify(result));
   };
 
   return (
