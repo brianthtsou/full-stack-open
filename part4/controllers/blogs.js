@@ -43,12 +43,14 @@ blogRouter.post("/", async (request, response) => {
     });
   }
 
-  if (!decodedToken.user_id) {
+  if (!decodedToken.id) {
     return response.status(401).json({ err: "token invalid" });
   }
+
   try {
     // fetch user by id from decoded token
-    const user = await User.findById(decodedToken.user_id);
+    const user = await User.findById(decodedToken.id);
+
     if (!user) {
       return response.status(404).json({ message: "user not found" });
     }
