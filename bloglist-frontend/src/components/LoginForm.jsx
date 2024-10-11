@@ -1,21 +1,30 @@
 import { useState } from "react";
 import loginService from "../services/login";
 
-const LoginForm = ({ updateUser }) => {
+const LoginForm = ({ updateUser, updateLoginNotification }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (event) => {
     event.preventDefault();
     console.log("logging in with", username, password);
-    // get login token & userdata
-    const result = await loginService.initiateLogin(username, password);
-    console.log(result);
-    // if token & username valid, changed loggedin user
-    if (result.token && result.username) {
-      updateUser(result.username);
+    try {
+      // get login token & userdata
+      const result = await loginService.initiateLogin(username, password);
+      console.log(result);
+      // if token & username valid, changed loggedin user
+      if (result.token && result.username) {
+        updateUser(result.username);
+        window.localStorage.setItem(
+          "loggedBlogappUser",
+          JSON.stringify(result)
+        );
+      } else {
+        updateLoginNotification();
+      }
+    } catch (error) {
+      updateLoginNotification();
     }
-    window.localStorage.setItem("loggedBlogappUser", JSON.stringify(result));
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import blogsService from "../services/blogs";
 
-const CreateNewBlogForm = ({ updateBlogs }) => {
+const CreateNewBlogForm = ({ updateBlogs, updateBlogNotification }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -17,6 +17,7 @@ const CreateNewBlogForm = ({ updateBlogs }) => {
     // post to blogservice with token
     await blogsService.createNewBlog(token, title, author, url);
     updateBlogs(token);
+    updateBlogNotification({ blogTitle: title, blogAuthor: author });
   };
 
   return (
