@@ -3,6 +3,7 @@ import Blog from "./components/Blog";
 import Notification from "./components/Notification";
 import LoginForm from "./components/LoginForm";
 import CreateNewBlogForm from "./components/CreateNewBlogForm";
+import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 
 const App = () => {
@@ -86,10 +87,12 @@ const App = () => {
       ))}
       <div>
         <h2>create new blog</h2>
-        <CreateNewBlogForm
-          updateBlogs={updateBlogs}
-          updateBlogNotification={updateBlogNotification}
-        />
+        <Togglable buttonLabel="new blog">
+          <CreateNewBlogForm
+            updateBlogs={updateBlogs}
+            updateBlogNotification={updateBlogNotification}
+          />
+        </Togglable>
       </div>
     </div>
   );
