@@ -9,7 +9,7 @@ const Togglable = (props) => {
   const toggleVisibility = () => {
     setVisible(!visible);
   };
-
+  //
   return (
     <div>
       <div style={hideWhenVisible}>
