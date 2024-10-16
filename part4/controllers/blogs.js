@@ -2,6 +2,7 @@ const blogRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 // const getTokenFrom = (request) => {
 //   const authorization = request.get("authorization");
@@ -98,7 +99,7 @@ blogRouter.delete("/:id", async (request, response) => {
     if (!result) {
       return response.status(404).json({ message: "No blog found." });
     }
-    if (result.user.equals(decodedToken.user_id)) {
+    if (!result.user.equals(decodedToken.user_id)) {
       return (
         response.status(401),
         json({
@@ -117,11 +118,49 @@ blogRouter.delete("/:id", async (request, response) => {
 });
 
 blogRouter.put("/:id", async (request, response) => {
+  // check to see if token exists
+  if (!request.token) {
+    return response.status(401).json({ message: "Token missing" });
+  }
+  // verify token
+  let decodedToken;
   try {
-    const body = request.body;
-    const updatedBlog = { ...request.body, likes: request.body.likes + 1 };
+    decodedToken = jwt.verify(request.token, process.env.SECRET);
+  } catch (err) {
+    return response.status(401).json({
+      err: err.message,
+      message: "Invalid or missing token verification",
+    });
+  }
+  if (!decodedToken.id) {
+    return response.status(401).json({ err: "token invalid" });
+  }
 
-    const result = await Blog.findByIdAndUpdate(request.params.id, updatedBlog);
+  try {
+    const fetchedBlog = await Blog.findById(request.params.id);
+    if (!fetchedBlog) {
+      return response.status(404).json({ message: "No blog found." });
+    }
+    if (!fetchedBlog.user.equals(decodedToken.id)) {
+      return (
+        response.status(401),
+        json({
+          err: err.message,
+          message: "Invalid user logged in.",
+        })
+      );
+    }
+
+    const updatedBlog = {
+      ...fetchedBlog.toObject(),
+      likes: fetchedBlog.likes + 1,
+    };
+    const result = await Blog.findByIdAndUpdate(
+      request.params.id,
+      updatedBlog,
+      { new: true, maxTimeMS: 5000 }
+    );
+
     if (!result) {
       return response.status(404).json({ message: "No blog found." });
     }
