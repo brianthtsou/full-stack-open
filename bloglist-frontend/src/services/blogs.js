@@ -26,4 +26,15 @@ const createNewBlog = async (token, title, author, url) => {
   return response.data;
 };
 
-export default { getAll, createNewBlog };
+const updateBlogLikes = async (token, blogId) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+
+  const url = `${baseUrl}/${blogId}`;
+  console.log(url);
+  const response = await axios.put(url, {}, config);
+  return response.data;
+};
+
+export default { getAll, createNewBlog, updateBlogLikes };
