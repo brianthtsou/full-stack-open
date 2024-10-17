@@ -93,7 +93,7 @@ blogRouter.delete("/:id", async (request, response) => {
     });
   }
 
-  if (!decodedToken.user_id) {
+  if (!decodedToken.id) {
     return response.status(401).json({ err: "token invalid" });
   }
 
@@ -102,7 +102,7 @@ blogRouter.delete("/:id", async (request, response) => {
     if (!result) {
       return response.status(404).json({ message: "No blog found." });
     }
-    if (!result.user.equals(decodedToken.user_id)) {
+    if (!result.user.equals(decodedToken.id)) {
       return (
         response.status(401),
         json({

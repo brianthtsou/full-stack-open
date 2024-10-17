@@ -32,9 +32,18 @@ const updateBlogLikes = async (token, blogId) => {
   };
 
   const url = `${baseUrl}/${blogId}`;
-  console.log(url);
+
   const response = await axios.put(url, {}, config);
   return response.data;
 };
 
-export default { getAll, createNewBlog, updateBlogLikes };
+const deleteBlog = async (token, blogId) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const url = `${baseUrl}/${blogId}`;
+  const response = await axios.delete(url, config);
+  return response.data;
+};
+
+export default { getAll, createNewBlog, updateBlogLikes, deleteBlog };
