@@ -19,7 +19,10 @@ blogRouter.get("/", async (request, response) => {
 
 blogRouter.post("/", async (request, response) => {
   // create a new blog
-  const blog = new Blog(request.body);
+  const blog = new Blog({
+    ...request.body,
+    likes: request.body.likes || 0, // Set likes to 0 if not provided
+  });
 
   if (!blog.title || !blog.url) {
     response
