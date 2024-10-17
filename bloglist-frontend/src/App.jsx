@@ -47,7 +47,8 @@ const App = () => {
     if (token) {
       try {
         console.log("Token being passed: ", token);
-        const blogs = await blogService.getAll(token); // Pass token to blogService
+        let blogs = await blogService.getAll(token); // Pass token to blogService
+        blogs.sort((a, b) => b.likes - a.likes);
         setBlogs(blogs); // Update state only when the blogs are fetched
       } catch (error) {
         console.error("Failed to fetch blogs:", error);
