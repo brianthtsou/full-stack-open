@@ -43,7 +43,7 @@ const Blog = ({ blog, updateBlogs }) => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog">
       {blog.title} {blog.author}
       <Togglable buttonLabel="view">
         url: {blog.url} <br></br>likes: {blog.likes}{" "}
