@@ -36,6 +36,7 @@ const LoginForm = ({ updateUser, updateLoginNotification }) => {
           type="text"
           value={username}
           name="Username"
+          id="Username"
           onChange={({ target }) => setUsername(target.value)}
         ></input>
       </div>
@@ -45,6 +46,7 @@ const LoginForm = ({ updateUser, updateLoginNotification }) => {
           type="text"
           value={password}
           name="Password"
+          id="Password"
           onChange={({ target }) => setPassword(target.value)}
         ></input>
       </div>
