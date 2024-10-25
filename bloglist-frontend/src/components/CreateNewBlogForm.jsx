@@ -29,6 +29,7 @@ const CreateNewBlogForm = ({ updateBlogs, updateBlogNotification }) => {
           type="text"
           value={title}
           name="Title"
+          id="title-input"
           onChange={({ target }) => setTitle(target.value)}
         ></input>
       </div>
@@ -37,7 +38,8 @@ const CreateNewBlogForm = ({ updateBlogs, updateBlogNotification }) => {
         <input
           type="text"
           value={author}
-          name="Password"
+          name="author"
+          id="author-input"
           onChange={({ target }) => setAuthor(target.value)}
         ></input>
       </div>
@@ -47,10 +49,13 @@ const CreateNewBlogForm = ({ updateBlogs, updateBlogNotification }) => {
           type="text"
           value={url}
           name="url"
+          id="url-input"
           onChange={({ target }) => setUrl(target.value)}
         ></input>
       </div>
-      <button type="submit">Create</button>
+      <button id="create-blog-submit-button" type="submit">
+        Create
+      </button>
     </form>
   );
 };

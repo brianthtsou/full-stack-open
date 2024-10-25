@@ -24,4 +24,21 @@ describe("Blog app", function () {
       cy.get(".notification").should("have.css", "color", "rgb(255, 0, 0)");
     });
   });
+
+  describe("When logged in", function () {
+    beforeEach(function () {
+      cy.get("#Username").type("Tester1");
+      cy.get("#Password").type("password");
+      cy.get("#login-button").click();
+    });
+
+    it("A blog can be created", function () {
+      cy.contains("button", "new blog").click();
+      cy.get("#title-input").type("auto-test-1");
+      cy.get("#author-input").type("auto-test-1");
+      cy.get("#url-input").type("auto-test-1");
+      cy.get("#create-blog-submit-button").click();
+      cy.get(".notification").contains("auto-test-1 by auto-test-1 added!");
+    });
+  });
 });
